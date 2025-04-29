@@ -43,7 +43,7 @@ export async function generatePixelArt({
     const enhancedPrompt = `${prompt}, 8-bit style, pixelated, game sprite, high quality pixel art`
 
     // Call the custom API endpoint
-    const response = await fetch("https://88b7-34-145-111-243.ngrok-free.app/generate", {
+    const response = await fetch("https://included-deeply-rhino.ngrok-free.app/generate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
