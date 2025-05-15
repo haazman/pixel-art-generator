@@ -4,9 +4,10 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { LucideSend, LucideX } from "lucide-react"
+import { LucideLoader2, LucideSend, LucideX } from "lucide-react"
 
 interface FeedbackSurveyProps {
+  isSending: boolean
   onSubmit: (feedback: FeedbackData) => void
   onClose: () => void
 }
@@ -17,7 +18,7 @@ export interface FeedbackData {
   comments?: string
 }
 
-export function FeedbackSurvey({ onSubmit, onClose }: FeedbackSurveyProps) {
+export function FeedbackSurvey({ isSending = false, onSubmit, onClose }: FeedbackSurveyProps) {
   const [colorRating, setColorRating] = useState<number>(0)
   const [similarityRating, setSimilarityRating] = useState<number>(0)
   const [comments, setComments] = useState<string>("")
@@ -40,6 +41,7 @@ export function FeedbackSurvey({ onSubmit, onClose }: FeedbackSurveyProps) {
           </Button>
         </CardHeader>
         <CardContent className="space-y-6">
+
           <div className="space-y-3">
             <Label className="text-sm font-medium text-white">How would you rate the colors?</Label>
             <div className="flex justify-between">
@@ -47,11 +49,10 @@ export function FeedbackSurvey({ onSubmit, onClose }: FeedbackSurveyProps) {
                 <Button
                   key={rating}
                   variant="outline"
-                  className={`w-12 h-12 ${
-                    colorRating === rating
-                      ? "bg-pixel-green border-pixel-green text-black"
-                      : "bg-gray-700 border-gray-600"
-                  }`}
+                  className={`w-12 h-12 ${colorRating === rating
+                    ? "bg-pixel-green border-pixel-green text-black"
+                    : "bg-gray-700 border-gray-600"
+                    }`}
                   onClick={() => setColorRating(rating)}
                 >
                   {rating}
@@ -71,11 +72,10 @@ export function FeedbackSurvey({ onSubmit, onClose }: FeedbackSurveyProps) {
                 <Button
                   key={rating}
                   variant="outline"
-                  className={`w-12 h-12 ${
-                    similarityRating === rating
-                      ? "bg-pixel-blue border-pixel-blue text-white"
-                      : "bg-gray-700 border-gray-600"
-                  }`}
+                  className={`w-12 h-12 ${similarityRating === rating
+                    ? "bg-pixel-blue border-pixel-blue text-white"
+                    : "bg-gray-700 border-gray-600"
+                    }`}
                   onClick={() => setSimilarityRating(rating)}
                 >
                   {rating}
@@ -107,8 +107,16 @@ export function FeedbackSurvey({ onSubmit, onClose }: FeedbackSurveyProps) {
             disabled={colorRating === 0 || similarityRating === 0}
             className="w-full bg-pixel-green hover:bg-pixel-darkGreen text-black font-bold"
           >
-            <LucideSend className="mr-2 h-4 w-4" />
-            Submit Feedback
+            {isSending ? (
+              <div className="flex items-center justify-center">
+                <LucideLoader2 className="h-6 w-6 animate-spin text-pixel-blue" />
+              </div>
+            ) : (
+              <>
+                <LucideSend className="mr-2 h-4 w-4" />
+                Submit Feedback
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>

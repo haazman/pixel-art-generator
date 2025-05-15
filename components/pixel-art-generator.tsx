@@ -10,6 +10,8 @@ import { CharacterCustomizer } from "@/components/character-customizer"
 import { FeedbackSurvey, type FeedbackData } from "@/components/feedback-survey"
 import { PlainTextPrompt } from "@/components/plain-text-prompt"
 import { LucideImage, LucideLoader2, LucideTrash2, LucideDownload } from "lucide-react"
+import { SendFeedbackToSheet } from "@/app/actions/send-feedback-to-sheet"
+import FeedbackDoneModal from "./feedback-done"
 
 export type GeneratedImage = {
   imageUrl: string
@@ -34,6 +36,8 @@ export function PixelArtGenerator() {
   const [currentImage, setCurrentImage] = useState<GeneratedImage | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false)
+  const [showFeedbackDone, setShowFeedbackDone] = useState(false)
 
   const handleGenerate = async () => {
     if (promptMode === "modular") {
@@ -58,10 +62,9 @@ export function PixelArtGenerator() {
           params: result.params!,
           timestamp: Date.now(),
         }
-        
+
         setIsGenerating(false)
         setCurrentImage(newImage)
-        // setShowFeedback(true)
       } else {
         setError(result.error || "Failed to generate image")
       }
@@ -73,16 +76,27 @@ export function PixelArtGenerator() {
     }
   }
 
-  const handleFeedbackSubmit = (feedback: FeedbackData) => {
+  const handleFeedbackSubmit = async (feedback: FeedbackData) => {
     if (currentImage) {
       const updatedImage = { ...currentImage, feedback }
-      setCurrentImage(updatedImage)
+      setIsSendingFeedback(true);
+      const response = await SendFeedbackToSheet({
+        color: feedback.colorRating.toString(),
+        similarity: feedback.similarityRating.toString(),
+        optional: feedback.comments,
+      })
+      setIsSendingFeedback(false);
       setShowFeedback(false)
+      setShowFeedbackDone(true)
     }
   }
 
   const handleFeedbackClose = () => {
     setShowFeedback(false)
+  }
+
+  const handleFeedbackDoneClose = () => {
+    setShowFeedbackDone(false)
   }
 
   const handleClearCurrent = () => {
@@ -188,10 +202,18 @@ export function PixelArtGenerator() {
           </div>
 
           <PixelArtDisplay image={currentImage} isLoading={isGenerating} />
+          <div className="pt-6 flex justify-end mx-20">
+            {!isGenerating && currentImage && (
+              <>
+                <Button onClick={() => { setShowFeedback(true) }}>Review</Button>
+              </>
+            )}
+          </div>
         </CardContent>
       </Card>
 
-      {showFeedback && <FeedbackSurvey onSubmit={handleFeedbackSubmit} onClose={handleFeedbackClose} />}
+      {showFeedback && <FeedbackSurvey isSending={isSendingFeedback} onSubmit={handleFeedbackSubmit} onClose={handleFeedbackClose} />}
+      <FeedbackDoneModal isOpen={showFeedbackDone} onClose={handleFeedbackDoneClose} />
     </div>
   )
 }
