@@ -23,8 +23,8 @@ export type GeneratedImage = {
 export function PixelArtGenerator() {
   const [characterOptions, setCharacterOptions] = useState<CharacterOptions>({
     hairColor: "brown",
+    headGear: "brown hat",
     clothType: "armor",
-    clothColor: "blue",
     weapon: "sword",
     facing: "forward",
     additionalDetails: "",

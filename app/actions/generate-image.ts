@@ -1,9 +1,9 @@
 "use server"
 
 export type CharacterOptions = {
-  hairColor: string
+  hairColor?: string
+  headGear?: string
   clothType: string
-  clothColor: string
   weapon: string
   facing: string
   additionalDetails?: string
@@ -27,10 +27,14 @@ export async function generatePixelArt({
     if (plainTextPrompt && plainTextPrompt.trim()) {
       prompt = plainTextPrompt.trim()
     } else if (characterOptions) {
-      const { hairColor, clothType, clothColor, weapon, facing, additionalDetails } = characterOptions
-      // Construct prompt from character options
-      prompt = `pixel art character with ${hairColor} hair, wearing ${clothColor} ${clothType}, holding a ${weapon}, facing ${facing}`
-
+      const { headGear, hairColor, clothType, weapon, facing, additionalDetails } = characterOptions
+      const hasHeadGear = headGear && headGear.toLowerCase() !== "no head gear"
+      const weaponPrompt = weapon && weapon.toLowerCase() !== "no weapon" ? weapon : ""
+      const headGearPrompt = hasHeadGear ? headGear : ""
+      const hairColorPrompt = !hasHeadGear && hairColor ? hairColor : ""
+      prompt = `pixel art character, ${headGearPrompt}, ${hairColorPrompt}, ${clothType},${weaponPrompt},${facing}`
+      console.log("Prompt:", prompt);
+      
       // Add additional details if provided
       if (additionalDetails && additionalDetails.trim()) {
         prompt += `, ${additionalDetails}`

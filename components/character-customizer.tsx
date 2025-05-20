@@ -14,23 +14,66 @@ export function CharacterCustomizer({ options, onChange }: CharacterCustomizerPr
     onChange({ ...options, [field]: value })
   }
 
-  const hairColors = ["blue", "red", "blond", "brown", "pink", "gray", "white", "purple", "orange", "green"]
-  const clothTypes = ["armor", "hoodie", "dress", "cape", "vest"]
+  const hairColors = [
+    "blue",
+    "red",
+    "blond",
+    "brown",
+    "pink",
+    "gray",
+    "white",
+    "purple",
+    "orange",
+    "green",
+    "bald"
+  ]
+  const clothTypes = [
+    "blue shirt",
+    "chainmail armor",
+    "gold armor",
+    "leather tunic",
+    "gray armor",
+    "red shirt",
+    "blue tunic",
+    "brown robe",
+    "white shirt",
+    "green dress",
+    "white tunic",
+    "brown shirt",
+    "gold armor",
 
-  const clothColorsByType: Record<string, string[]> = {
-    "armor": ["gray", "black", "blue", "gold"],
-    "hoodie": ["purple"],
-    "dress": ["purple", "gray"],
-    "cape": ["purple", "blue", "red", "pink"],
-    "vest": ["yellow", "blue", "purple", "gray"],
-  }
-  const weapons = ["sword", "spear", "bow", "no weapon"]
+  ]
+  const headGear = [
+    "brown hat",
+    "gray helmet",
+    "gold helmet",
+    "brown round hat",
+    "no head gear",
+  ]
+  const weapons = ["arrow sack", "spear", "no weapon"]
   const facingDirections = ["forward", "left", "right",]
 
   const [selectedClothColor, setSelectedClothColor] = useState<string[]>([])
 
   return (
     <div className="space-y-6">
+
+      <div className="space-y-3">
+        <Label className="text-sm font-medium text-white">Head Gear</Label>
+        <div className="grid grid-cols-4 gap-2">
+          {headGear.map((headGear) => (
+            <div
+              key={headGear}
+              onClick={() => handleChange("headGear", headGear)}
+              className={`px-3 py-2 rounded-md text-center text-sm cursor-pointer transition-colors ${options.headGear === headGear ? "bg-pixel-green text-black font-medium" : "bg-gray-700 hover:bg-gray-600"
+                }`}
+            >
+              {headGear.charAt(0).toUpperCase() + headGear.slice(1)}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-3">
         <Label className="text-sm font-medium text-white">Hair Color</Label>
         <div className="grid grid-cols-4 gap-2">
@@ -55,7 +98,6 @@ export function CharacterCustomizer({ options, onChange }: CharacterCustomizerPr
               key={type}
               onClick={() => {
                 handleChange("clothType", type)
-                setSelectedClothColor(clothColorsByType[type] || [])
               }}
               className={`px-3 py-2 rounded-md text-center text-sm cursor-pointer transition-colors ${options.clothType === type ? "bg-pixel-blue text-white font-medium" : "bg-gray-700 hover:bg-gray-600"
                 }`}
@@ -64,28 +106,6 @@ export function CharacterCustomizer({ options, onChange }: CharacterCustomizerPr
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-sm font-medium text-white">Clothing Color</Label>
-        {selectedClothColor.length > 0 ? (
-          <div className="grid grid-cols-4 gap-2">
-            {selectedClothColor.map((color) => (
-              <div
-          key={color}
-          onClick={() => handleChange("clothColor", color)}
-          className={`px-3 py-2 rounded-md text-center text-sm cursor-pointer transition-colors ${options.clothColor === color
-            ? "bg-pixel-purple text-white font-medium"
-            : "bg-gray-700 hover:bg-gray-600"
-            }`}
-              >
-          {color.charAt(0).toUpperCase() + color.slice(1)}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-sm text-gray-400">Select cloth type to see available colors</div>
-        )}
       </div>
 
       <div className="space-y-3">
