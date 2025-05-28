@@ -1,4 +1,6 @@
-import { LucideGamepad2 } from "lucide-react"
+"use client";
+import { LucideGamepad2 } from "lucide-react";
+import { FirebaseAuthButton } from "@/components/FirebaseAuthButton";
 
 export function PixelHeader() {
   return (
@@ -12,7 +14,10 @@ export function PixelHeader() {
             <span className="text-white">Generator</span>
           </h1>
         </div>
+        <div>
+          <FirebaseAuthButton />
+        </div>
       </div>
     </header>
-  )
+  );
 }

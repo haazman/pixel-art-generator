@@ -32,7 +32,18 @@ export async function generatePixelArt({
       const weaponPrompt = weapon && weapon.toLowerCase() !== "no weapon" ? weapon : ""
       const headGearPrompt = hasHeadGear ? headGear : ""
       const hairColorPrompt = !hasHeadGear && hairColor ? hairColor : ""
-      prompt = `pixel art character, ${headGearPrompt}, ${hairColorPrompt}, ${clothType},${weaponPrompt},${facing}`
+
+      // Build prompt parts, filter out empty strings, and join with commas
+      const promptParts = [
+        "pixel art character",
+        headGearPrompt,
+        hairColorPrompt,
+        clothType,
+        weaponPrompt,
+        `facing ${facing}`
+      ].filter(Boolean)
+
+      prompt = promptParts.join(", ")
       console.log("Prompt:", prompt);
       
       // Add additional details if provided

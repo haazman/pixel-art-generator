@@ -40,7 +40,6 @@ export function CharacterCustomizer({ options, onChange }: CharacterCustomizerPr
     "green dress",
     "white tunic",
     "brown shirt",
-    "gold armor",
 
   ]
   const headGear = [

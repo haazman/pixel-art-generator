@@ -4,17 +4,27 @@ export type SendFeedbackToSheetParams = {
   color?: string;
   similarity?: string;
   optional?: string;
+  headGearCorrect?: boolean;
+  hairColorCorrect?: boolean;
+  clothTypeCorrect?: boolean;
+  weaponCorrect?: boolean;
+  facingCorrect?: boolean;
 };
 
 export async function SendFeedbackToSheet({
   color,
   similarity,
   optional,
+  headGearCorrect,
+  hairColorCorrect,
+  clothTypeCorrect,
+  weaponCorrect,
+  facingCorrect,
 }: SendFeedbackToSheetParams) {
   try {
     // Call the custom API endpoint
     const response = await fetch(
-      "https://script.google.com/macros/s/AKfycbyCgM5oc2CLhw23TaIp_lhCufT6gYdka03hwn9YcTAEhRhEu69hFpXAgutxW0OdJ89BVw/exec",
+      "https://script.google.com/macros/s/AKfycbyXcc9aPhxR8jwx9q6rHTawZwb2lONhsIj1xDXNhh9nCRgiqJrJiDee-vZtErMEKpm5/exec",
       {
         method: "POST",
         headers: {
@@ -24,6 +34,11 @@ export async function SendFeedbackToSheet({
           color: color || "",
           similarity: similarity || "",
           optional: optional || "",
+          headGearCorrect: headGearCorrect ?? null,
+          hairColorCorrect: hairColorCorrect ?? null,
+          clothTypeCorrect: clothTypeCorrect ?? null,
+          weaponCorrect: weaponCorrect ?? null,
+          facingCorrect: facingCorrect ?? null,
         }),
       }
     );
@@ -34,10 +49,7 @@ export async function SendFeedbackToSheet({
 
     const data = await response.json();
 
-    if (!data.image) {
-      throw new Error("No image data received from API");
-    }
-
+    // Remove image check if not needed for feedback
     return {
       success: true,
       params: {
@@ -45,7 +57,7 @@ export async function SendFeedbackToSheet({
       },
     };
   } catch (error) {
-    console.error("Error generating image:", error);
+    console.error("Error sending feedback:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

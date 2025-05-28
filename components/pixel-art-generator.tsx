@@ -1,24 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { type CharacterOptions, generatePixelArt } from "@/app/actions/generate-image"
-import { PixelArtDisplay } from "@/components/pixel-art-display"
-import { CharacterCustomizer } from "@/components/character-customizer"
-import { FeedbackSurvey, type FeedbackData } from "@/components/feedback-survey"
-import { PlainTextPrompt } from "@/components/plain-text-prompt"
-import { LucideImage, LucideLoader2, LucideTrash2, LucideDownload } from "lucide-react"
-import { SendFeedbackToSheet } from "@/app/actions/send-feedback-to-sheet"
-import FeedbackDoneModal from "./feedback-done"
+import { useState, useEffect } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type CharacterOptions, generatePixelArt } from "@/app/actions/generate-image";
+import { PixelArtDisplay } from "@/components/pixel-art-display";
+import { CharacterCustomizer } from "@/components/character-customizer";
+import { FeedbackSurvey, type FeedbackData } from "@/components/feedback-survey";
+import { PlainTextPrompt } from "@/components/plain-text-prompt";
+import { LucideImage, LucideLoader2, LucideTrash2, LucideDownload } from "lucide-react";
+import { SendFeedbackToSheet } from "@/app/actions/send-feedback-to-sheet";
+import FeedbackDoneModal from "./feedback-done";
 
 export type GeneratedImage = {
-  imageUrl: string
-  params: any
-  timestamp: number
-  feedback?: FeedbackData
-}
+  imageUrl: string;
+  params: any;
+  timestamp: number;
+  feedback?: FeedbackData;
+};
 
 export function PixelArtGenerator() {
   const [characterOptions, setCharacterOptions] = useState<CharacterOptions>({
@@ -28,92 +30,105 @@ export function PixelArtGenerator() {
     weapon: "sword",
     facing: "forward",
     additionalDetails: "",
-  })
+  });
 
-  const [plainTextPrompt, setPlainTextPrompt] = useState("")
-  const [promptMode, setPromptMode] = useState<"modular" | "plainText">("modular")
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [currentImage, setCurrentImage] = useState<GeneratedImage | null>(null)
-  const [showFeedback, setShowFeedback] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isSendingFeedback, setIsSendingFeedback] = useState(false)
-  const [showFeedbackDone, setShowFeedbackDone] = useState(false)
+  const [plainTextPrompt, setPlainTextPrompt] = useState("");
+  const [promptMode, setPromptMode] = useState<"modular" | "plainText">("modular");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [currentImage, setCurrentImage] = useState<GeneratedImage | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+  const [showFeedbackDone, setShowFeedbackDone] = useState(false);
+  const [user, setUser] = useState<User | null>(null); // Track logged-in user
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser); // Update user state when auth state changes
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleGenerate = async () => {
     if (promptMode === "modular") {
-
+      // Modular prompt logic
     } else if (promptMode === "plainText" && !plainTextPrompt.trim()) {
-
+      // Plain text prompt logic
     }
 
-    setIsGenerating(true)
-    setError(null)
+    setIsGenerating(true);
+    setError(null);
 
     try {
       const result = await generatePixelArt({
         characterOptions: promptMode === "modular" ? characterOptions : undefined,
         plainTextPrompt: promptMode === "plainText" ? plainTextPrompt : undefined,
         seed: Math.floor(Math.random() * 1000000),
-      })
+      });
 
       if (result.success && result.imageUrl) {
         const newImage: GeneratedImage = {
           imageUrl: result.imageUrl,
           params: result.params!,
           timestamp: Date.now(),
-        }
+        };
 
-        setIsGenerating(false)
-        setCurrentImage(newImage)
+        setIsGenerating(false);
+        setCurrentImage(newImage);
       } else {
-        setError(result.error || "Failed to generate image")
+        setError(result.error || "Failed to generate image");
       }
     } catch (error) {
-      console.error("Error generating image:", error)
-      setError(error instanceof Error ? error.message : "An unexpected error occurred")
+      console.error("Error generating image:", error);
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const handleFeedbackSubmit = async (feedback: FeedbackData) => {
     if (currentImage) {
-      const updatedImage = { ...currentImage, feedback }
+      const updatedImage = { ...currentImage, feedback };
       setIsSendingFeedback(true);
       const response = await SendFeedbackToSheet({
         color: feedback.colorRating.toString(),
         similarity: feedback.similarityRating.toString(),
         optional: feedback.comments,
-      })
+        headGearCorrect: feedback.headGearCorrect,
+        hairColorCorrect: feedback.hairColorCorrect,
+        clothTypeCorrect: feedback.clothTypeCorrect,
+        weaponCorrect: feedback.weaponCorrect,
+        facingCorrect: feedback.facingCorrect,
+      });
       setIsSendingFeedback(false);
-      setShowFeedback(false)
-      setShowFeedbackDone(true)
+      setShowFeedback(false);
+      setShowFeedbackDone(true);
     }
-  }
+  };
 
   const handleFeedbackClose = () => {
-    setShowFeedback(false)
-  }
+    setShowFeedback(false);
+  };
 
   const handleFeedbackDoneClose = () => {
-    setShowFeedbackDone(false)
-  }
+    setShowFeedbackDone(false);
+  };
 
   const handleClearCurrent = () => {
-    setCurrentImage(null)
-  }
+    setCurrentImage(null);
+  };
 
   const handleDownload = () => {
-    if (!currentImage?.imageUrl) return
+    if (!currentImage?.imageUrl) return;
 
     // Create a temporary link element
-    const link = document.createElement("a")
-    link.href = currentImage.imageUrl
-    link.download = `pixel-art-${new Date().getTime()}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    const link = document.createElement("a");
+    link.href = currentImage.imageUrl;
+    link.download = `pixel-art-${new Date().getTime()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -203,10 +218,13 @@ export function PixelArtGenerator() {
 
           <PixelArtDisplay image={currentImage} isLoading={isGenerating} />
           <div className="pt-6 flex justify-end mx-20">
-            {!isGenerating && currentImage && (
-              <>
-                <Button onClick={() => { setShowFeedback(true) }}>Review</Button>
-              </>
+            {!isGenerating && currentImage && user && ( // Only show feedback button if user is logged in
+              <Button
+                onClick={() => setShowFeedback(true)}
+                className="bg-pixel-yellow hover:bg-pixel-darkYellow text-black font-bold"
+              >
+                Give Feedback
+              </Button>
             )}
           </div>
         </CardContent>
@@ -215,5 +233,5 @@ export function PixelArtGenerator() {
       {showFeedback && <FeedbackSurvey isSending={isSendingFeedback} onSubmit={handleFeedbackSubmit} onClose={handleFeedbackClose} />}
       <FeedbackDoneModal isOpen={showFeedbackDone} onClose={handleFeedbackDoneClose} />
     </div>
-  )
+  );
 }
