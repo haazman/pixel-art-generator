@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAlng6hYdqyWtZyzxiPtshRbeywNik_RQM",
-  authDomain: "pixchar-db409.firebaseapp.com",
+  authDomain: "pixel-art-generator-ashen.vercel.app",
   projectId: "pixchar-db409",
   storageBucket: "pixchar-db409.firebasestorage.app",
   messagingSenderId: "605217969016",
