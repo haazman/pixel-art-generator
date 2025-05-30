@@ -1,6 +1,7 @@
 "use server";
 
 export type SendFeedbackToSheetParams = {
+  email?: string; // Add email parameter
   color?: string;
   similarity?: string;
   optional?: string;
@@ -12,6 +13,7 @@ export type SendFeedbackToSheetParams = {
 };
 
 export async function SendFeedbackToSheet({
+  email, // Include email in the function parameters
   color,
   similarity,
   optional,
@@ -24,7 +26,7 @@ export async function SendFeedbackToSheet({
   try {
     // Call the custom API endpoint
     const response = await fetch(
-      "https://script.google.com/macros/s/AKfycbyXcc9aPhxR8jwx9q6rHTawZwb2lONhsIj1xDXNhh9nCRgiqJrJiDee-vZtErMEKpm5/exec",
+      "https://script.google.com/macros/s/AKfycbyY3Jg_KxKU0eeFScFUbcQVQ3jGMoA-p_7e0HYOjO_o7ZHo84eqEd3-B2F-9VYuaIDFkA/exec",
       {
         method: "POST",
         headers: {
@@ -39,6 +41,7 @@ export async function SendFeedbackToSheet({
           clothTypeCorrect: clothTypeCorrect ?? null,
           weaponCorrect: weaponCorrect ?? null,
           facingCorrect: facingCorrect ?? null,
+          gmail: email || "",
         }),
       }
     );
@@ -49,7 +52,6 @@ export async function SendFeedbackToSheet({
 
     const data = await response.json();
 
-    // Remove image check if not needed for feedback
     return {
       success: true,
       params: {

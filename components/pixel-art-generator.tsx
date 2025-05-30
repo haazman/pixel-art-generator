@@ -87,10 +87,13 @@ export function PixelArtGenerator() {
   };
 
   const handleFeedbackSubmit = async (feedback: FeedbackData) => {
-    if (currentImage) {
+    if (currentImage && user?.email) {
       const updatedImage = { ...currentImage, feedback };
       setIsSendingFeedback(true);
+      console.log("Sending feedback:", user?.email);
+      
       const response = await SendFeedbackToSheet({
+        email: user.email,
         color: feedback.colorRating.toString(),
         similarity: feedback.similarityRating.toString(),
         optional: feedback.comments,
