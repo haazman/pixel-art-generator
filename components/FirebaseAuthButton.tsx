@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { LucideUser } from "lucide-react"; 
 import Image from "next/image"; 
@@ -9,18 +9,43 @@ export function FirebaseAuthButton() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
+    // Check for redirect result after login flow
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        console.log("Redirect result:", result);
+        
+        if (result?.user) {
+          setUser(result.user); // Set the logged-in user
+        }
+      } catch (error) {
+        console.error("Error handling redirect result:", error);
+      }
+    };
+
+    checkRedirectResult();
+
+    // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
   }, []);
 
   const handleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithRedirect(auth, provider); // Use redirect-based sign-in for better mobile compatibility
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+    }
   };
 
   const handleSignOut = async () => {
-    await signOut(auth);
-    setDropdownOpen(false); // Close dropdown after logout
+    try {
+      await signOut(auth);
+      setDropdownOpen(false); // Close dropdown after logout
+    } catch (error) {
+      console.error("Error during sign-out:", error);
+    }
   };
 
   if (user) {
@@ -54,7 +79,7 @@ export function FirebaseAuthButton() {
 
   return (
     <button
-      onClick={handleSignIn}
+      onClick={handleSignIn} // Ensure sign-in is triggered directly on click
       className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-gray-500 flex items-center justify-center bg-white"
     >
       <Image

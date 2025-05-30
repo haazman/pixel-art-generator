@@ -90,7 +90,6 @@ export function PixelArtGenerator() {
     if (currentImage && user?.email) {
       const updatedImage = { ...currentImage, feedback };
       setIsSendingFeedback(true);
-      console.log("Sending feedback:", user?.email);
       
       const response = await SendFeedbackToSheet({
         email: user.email,
